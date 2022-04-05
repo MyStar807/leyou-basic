@@ -1,0 +1,78 @@
+server:
+  port: 10010
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ly-registry:10086/eureka
+#
+#hystrix:
+#  command:
+#    default:
+#      # hystrix 6\u79D2\u540E\u81EA\u52A8\u8D85\u65F6
+#      execution.isolation.thread.timeoutInMilliseconds: 6000 # \u7194\u65AD\u8D85\u65F6\u65F6\u957F 6000ms
+#
+#    HystrixCommandKey:
+#      execution:
+#        isolation:
+#          semaphore:
+#            maxConcurrentRequests: 50 # \u6700\u5927\u8BF7\u6C42
+#
+#ribbon:
+#  ConnectTimeout: 500 # \u8FDE\u63A5\u8D85\u65F6\u65F6\u957F
+#  ReadTimeout: 2000 # \u8BFB\u53D6\u8D85\u65F6\u65F6\u957F
+
+spring:
+  application:
+    name: ly-gateway
+  cloud:
+    gateway:
+
+      # 全局跨域处理
+      globalcors:
+        # 允许options请求 是否将当前cors配置加入到SimpleUrlHandlerMapping中，解决options请求被拦截问题
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: # 允许哪些网站的跨域请求
+              - "http://manage.leyou.com"
+              - "http://www.leyou.com"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true # 是否允许携带cookie
+            maxAge: 360000 # 这次跨域检测的有效期
+
+      # 默认过滤器
+      default-filters:
+        - StripPrefix=1 # 去除路由前缀
+        - name: Hystrix # 指定过滤工厂名称（可以是任意过滤工厂类型）
+          args: # 指定过滤的参数
+            name: fallbackcmd  # hystrix的指令名
+            fallbackUri: forward:/hystrix/fallback # 失败后的跳转路径
+        - name: RequestRateLimiter # 请求数限流 名字不能随便写
+          args:
+            key-resolver: "#{@ipKeyResolver}" # 指定一个key生成器,SPel表达式
+            redis-rate-limiter.replenishRate: 2000 # 生成令牌的速率
+            redis-rate-limiter.burstCapacity: 10000 # 桶的容量
+
+      #  路由
+      routes:
+        - id: auth-service # 授权服务
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+
+        - id: user-service # 用户服务
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+
+        - id: item-service # 商品服务
+          uri: lb://item-service
+          predicates:
+            - Path=/item/**

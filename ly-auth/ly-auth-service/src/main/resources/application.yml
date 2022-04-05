@@ -1,0 +1,39 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: auth-service
+
+  jackson:
+    default-property-inclusion: non_null
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://ly-mysql:3306/heima?useSSL=false
+    username: root
+    password: root
+
+  redis:
+    host: ly-redis
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ly-registry:10086/eureka
+
+logging:
+  level:
+    cn.study: debug
+
+ly:
+  jwt:
+    key: helloWorldJavaLeyouAuthServiceSecretKey
+
+mybatis-plus:
+  type-aliases-package: com.leyou.auth.entity
+  global-config:
+    db-config:
+      id-type: auto
+      insert-strategy: not_empty
+      update-strategy: not_empty

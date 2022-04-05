@@ -1,0 +1,43 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: item-service
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://ly-mysql:3306/heima?useSSL=false
+    username: root
+    password: root
+
+  jackson:
+    default-property-inclusion: non_null
+
+  rabbitmq:
+    host: ly-mq
+    username: heima
+    password: heima
+    virtual-host: /leyou
+    publisher-confirms: true
+    template:
+      retry:
+        max-interval: 8000ms
+        multiplier: 2
+        initial-interval: 1000ms
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ly-registry:10086/eureka
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+      update-strategy: not_null
+      insert-strategy: not_null
+
+logging:
+  level:
+    cn.study: debug

@@ -1,0 +1,12 @@
+server:
+  port: 10086
+spring:
+  application:
+    name: ly-registry
+eureka:
+  client:
+    register-with-eureka: false # 是否将自己注入Eureka
+    fetch-registry: false  # 表示是否从Eureka Server中获取注册的服务信息
+    service-url:
+      defaultZone: http://ly-registry:10086/eureka
+

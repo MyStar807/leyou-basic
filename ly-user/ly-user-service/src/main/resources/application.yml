@@ -1,0 +1,59 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://ly-mysql:3306/heima?useSSL=false
+    username: root
+    password: root
+
+  jackson:
+    default-property-inclusion: non_null # 属性为空则不包括
+
+  rabbitmq:
+    host: ly-mq
+    username: heima
+    password: heima
+    virtual-host: /leyou
+    publisher-confirms: true # 打开发送确认
+    template:
+      retry: # retry 机制重试
+        enabled: true
+        initial-interval: 1000ms # 重试起始间隔时间
+        multiplier: 2  #倍增数
+        max-interval: 8000ms #最大重试间隔
+
+  redis:
+    host: ly-redis
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ly-registry:10086/eureka
+
+mybatis-plus:
+  type-aliases-package: cn.study.user.model
+  global-config:
+    db-config:
+      id-type: auto
+      insert-strategy: not_empty # 为空则不包括
+      update-strategy: not_empty
+
+logging:
+  level:
+    cn.study: debug
+
+ly:
+  encoder:
+    crypt:
+      secret: ${random.uuid}
+      strength: 6
+  auth:
+    clientId: user-service
+    secret: 1234
+    includeFilterPaths:
+      - /info/me
